@@ -53,7 +53,7 @@ public class NAIdParams extends NAKeyParams implements IdParams {
 
     @Override
     @Autowired
-    public void setPageSize(@Value("100") int pageSize) {
+    public void setPageSize(@Value("${requestPageSize}") int pageSize) {
         if(pageSize <= 0) {
             logger.error("Page size parameter has non-positive value");
 

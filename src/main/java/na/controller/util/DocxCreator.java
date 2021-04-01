@@ -21,10 +21,7 @@ import na.controller.services.ImageLookupService;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -72,7 +69,7 @@ public class DocxCreator implements ResponseCreator {
     }
 
     @Autowired
-    public void setImagePixelsWidth(@Value("400") int imagePixelsWidth) {
+    public void setImagePixelsWidth(@Value("${newsImagePixelsWidth}") int imagePixelsWidth) {
         if(imagePixelsWidth <= 0) {
             throw new IllegalArgumentException(
                     "Image width parameter has non-positive value"
@@ -99,13 +96,17 @@ public class DocxCreator implements ResponseCreator {
                 imageResponses = new
                 CompletableFuture[imageLookupThreads];
         ResponseEntity<byte[]> lookupResult;
-        int newsIndex = 1;
+        int newsIndex = 0;
         int threadIter = 0;
 
-        logger.info("Starting send asynchronous image get requests " +
-                "with " + imageLookupService + " threads");
+        Iterator<News> newsIter = newsList.iterator();
+        News news;
 
-        for(News news : newsList) {
+        logger.info("Starting send asynchronous image get requests " +
+                "with " + imageLookupThreads + " threads");
+
+        while(newsIter.hasNext()) {
+            news = newsIter.next();
             if(news.getImageUrl() != null) {
                 try {
                     imageResponses[threadIter] = imageLookupService.
@@ -119,13 +120,19 @@ public class DocxCreator implements ResponseCreator {
                 }
 
                 if(threadIter >= imageLookupThreads - 1 ||
-                        !newsList.iterator().hasNext()) {
+                        !newsIter.hasNext()) {
 
-                    CompletableFuture.allOf(Arrays.copyOf(imageResponses,
-                            threadIter + 1)).join();
+                    if(threadIter < imageLookupThreads - 1) {
+                        CompletableFuture.allOf(Arrays.
+                                copyOf(imageResponses,
+                                threadIter + 1)).join();
+                    } else {
+                        CompletableFuture.allOf(imageResponses).join();
+                    }
 
                     for(int threadRead = 0; threadRead <= threadIter;
                         threadRead++) {
+                        newsIndex++;
                         try {
                             lookupResult =
                                     imageResponses[threadRead].get();
@@ -154,8 +161,6 @@ public class DocxCreator implements ResponseCreator {
                     threadIter++;
                 }
             }
-
-            newsIndex++;
         }
 
         return resultMap;
