@@ -50,6 +50,9 @@ public class NewsResponseController extends NewsSearchController {
     public ResponseEntity<?> getErrorResponse(Exception e) {
         String body = Objects.requireNonNullElse(e.getMessage(), e.toString());
 
+        logger.info("Sending error response with body: " +
+                body);
+
         return ResponseEntity.status(lastErrorCode).
                 contentLength(body.length()).
                 contentType(new MediaType("text", "plain")).
@@ -72,6 +75,13 @@ public class NewsResponseController extends NewsSearchController {
                                              String language) throws ResponseHandleException, ExecutionException, InterruptedException {
         MediaType requestMediaType;
 
+        logger.info("Client get news request");
+
+        logger.info("Client accept media type: " + Objects.
+                requireNonNullElse(request.
+                                getHeader("Accept"),
+                        "No accept"));
+
         try {
             requestMediaType = MediaTypeLogic.
                     createFromString(request.getHeader("Accept"));
@@ -81,6 +91,9 @@ public class NewsResponseController extends NewsSearchController {
                             "vnd.openxmlformats-officedocument." +
                             "wordprocessingml.document");
         }
+
+        logger.info("Response media type: " + requestMediaType.
+                getType() + "/" + requestMediaType.getSubtype());
 
         ResponseCreator creator = ((NewsCreatorFactory) beanContext.
                 getBean("creatorFactory")).getCreator(requestMediaType);
@@ -97,18 +110,46 @@ public class NewsResponseController extends NewsSearchController {
         if (creator != null) {
             searchResult = searchNews(sourcesParams);
 
+            if(!searchResult.getStatus()) {
+                logger.warn("Get news from source error. Code:" +
+                        searchResult.getErrorCode() +
+                        " Message: " + searchResult.
+                        getErrorMessage());
+            }
+
             if (!searchResult.getStatus() &&
                     !errorManager.isIgnorable(searchResult.
                             getErrorCode())) {
                 throw new ResponseHandleException(searchResult);
             } else {
+                if(!searchResult.getStatus()) {
+                    logger.info("Error with code " +
+                            searchResult.getErrorCode() +
+                            " ignored");
+                }
+
                 bodyResult = creator.body(searchResult.
                         getResult());
+
+                if(!bodyResult.getStatus()) {
+                    logger.warn("News response creating " +
+                            "error. Code: " +
+                            bodyResult.getErrorCode() +
+                            " Message: " + bodyResult.
+                            getErrorMessage());
+                }
+
                 if (!bodyResult.getStatus() &&
                         !errorManager.isIgnorable(bodyResult.
                                 getErrorCode())) {
                     throw new ResponseHandleException(bodyResult);
                 } else {
+                    if(!bodyResult.getStatus()) {
+                        logger.info("Error with code " +
+                                bodyResult.getErrorCode() +
+                                " ignored");
+                    }
+
                     body = bodyResult.getResult();
                 }
             }
@@ -121,6 +162,8 @@ public class NewsResponseController extends NewsSearchController {
                             "for media type "
                             + requestMediaType);
         }
+
+        logger.info("Sending response to client");
 
         return creator.entity(body);
     }
