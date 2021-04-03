@@ -46,7 +46,7 @@ public class NewsLookupService {
         requestMediaTypes.add(urnParams.getRequiredMediaType());
         requestHeaders.setAccept(requestMediaTypes);
         List<Charset> requestCharset = new ArrayList<>(1);
-        requestCharset.add(Charsets.UTF_8);
+        requestCharset.add(Charsets.toCharset("UTF-8"));
         requestHeaders.setAcceptCharset(requestCharset);
         HttpEntity<String> requestEntity = new HttpEntity<>("", requestHeaders);
 

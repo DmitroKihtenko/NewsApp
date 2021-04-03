@@ -97,6 +97,7 @@ public class DocxCreator implements ResponseCreator {
                 CompletableFuture[imageLookupThreads];
         ResponseEntity<byte[]> lookupResult;
         int newsIndex = 0;
+        int insertIndex = 0;
         int threadIter = 0;
 
         Iterator<News> newsIter = newsList.iterator();
@@ -106,8 +107,10 @@ public class DocxCreator implements ResponseCreator {
                 "with " + imageLookupThreads + " threads");
 
         while(newsIter.hasNext()) {
+            newsIndex++;
             news = newsIter.next();
             if(news.getImageUrl() != null) {
+                resultMap.put(newsIndex, null);
                 try {
                     imageResponses[threadIter] = imageLookupService.
                             lookup(news.getImageUrl());
@@ -119,36 +122,44 @@ public class DocxCreator implements ResponseCreator {
                                     e.toString()));
                 }
 
-                if(threadIter >= imageLookupThreads - 1 ||
+                if (threadIter >= imageLookupThreads - 1 ||
                         !newsIter.hasNext()) {
 
-                    if(threadIter < imageLookupThreads - 1) {
+                    if (threadIter < imageLookupThreads - 1) {
                         CompletableFuture.allOf(Arrays.
                                 copyOf(imageResponses,
-                                threadIter + 1)).join();
+                                        threadIter + 1)).join();
                     } else {
                         CompletableFuture.allOf(imageResponses).join();
                     }
 
-                    for(int threadRead = 0; threadRead <= threadIter;
-                        threadRead++) {
-                        newsIndex++;
+                    for (int threadRead = 0; threadRead <= threadIter;
+                         threadRead++) {
+                        insertIndex++;
+                        while(!resultMap.containsKey(
+                                insertIndex) && insertIndex
+                                <= newsIndex) {
+                            insertIndex++;
+                        }
+
                         try {
                             lookupResult =
                                     imageResponses[threadRead].get();
-                            if(lookupResult.getStatusCode().value() <
+                            if (lookupResult.getStatusCode().value() <
                                     HttpStatus.BAD_REQUEST.value()) {
                                 imageStream = new
                                         ByteArrayOutputStream();
                                 imageStream.write(lookupResult.
                                         getBody());
 
-                                resultMap.put(newsIndex, imageStream);
+                                resultMap.put(insertIndex, imageStream);
                             } else {
                                 logger.warn("News image source " +
                                         "returned status code " +
                                         lookupResult.getStatusCode().
                                                 value());
+
+                                resultMap.remove(insertIndex);
                             }
                         } catch (NullPointerException e) {
                             logger.warn("NullPointerException when " +
@@ -162,6 +173,8 @@ public class DocxCreator implements ResponseCreator {
                 }
             }
         }
+
+        logger.info("Image get completed successfully");
 
         return resultMap;
     }
