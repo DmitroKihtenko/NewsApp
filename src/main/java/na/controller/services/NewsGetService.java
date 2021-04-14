@@ -4,7 +4,6 @@ import na.parser.NewsParser;
 import na.pojo.News;
 import na.pojo.ResultAndError;
 import na.sources.IdParams;
-import na.sources.NewsSite;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -24,7 +22,7 @@ public class NewsGetService {
     private final static Logger logger =
             Logger.getLogger(NewsGetService.class);
 
-    private NewsLookupService lookupService;
+    private final NewsLookupService lookupService;
     private int lookupThreads;
     private final NewsParser fullParser;
     private Integer lastErrorCode;

@@ -95,7 +95,8 @@ public class NASourcesParams extends NAKeyParams implements SourcesParams {
 
     @Override
     public MediaType getRequiredMediaType() {
-        return MediaTypeLogic.createFromString(MediaType.APPLICATION_JSON_VALUE);
+        return MediaTypeLogic.createFromString(MediaType.
+                APPLICATION_JSON_VALUE);
     }
 
     @Override

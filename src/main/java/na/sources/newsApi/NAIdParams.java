@@ -115,7 +115,8 @@ public class NAIdParams extends NAKeyParams implements IdParams {
 
     @Override
     public MediaType getRequiredMediaType() {
-        return MediaTypeLogic.createFromString(MediaType.APPLICATION_JSON_VALUE);
+        return MediaTypeLogic.createFromString(MediaType.
+                APPLICATION_JSON_VALUE);
     }
 
     @Override
