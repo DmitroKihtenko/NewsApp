@@ -1,5 +1,6 @@
 package na.controller;
 
+import na.controller.services.NewsGetService;
 import na.error.ErrorManager;
 import na.sources.SourcesParams;
 import na.controller.util.NewsCreatorFactory;
@@ -7,7 +8,6 @@ import na.controller.util.ResponseCreator;
 import na.error.ResponseHandleException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +27,13 @@ public class NewsResponseController extends NewsSearchController {
     private static final Logger logger =
             Logger.getLogger(NewsResponseController.class);
 
-    private ErrorManager errorManager;
+    private final ErrorManager errorManager;
 
     @Autowired
     public NewsResponseController(NewsLookupService newsLookupService,
-                                  ErrorManager errorManager,
-                                  @Value("${newsLookupThreads}")
-                                              int newsLookupThreads) {
-        super(newsLookupService, newsLookupThreads);
+                                  NewsGetService newsGetService,
+                                  ErrorManager errorManager) {
+        super(newsLookupService, newsGetService);
         if(errorManager == null) {
             logger.error("Error manager parameter has null value");
 

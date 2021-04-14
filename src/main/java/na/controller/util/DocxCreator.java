@@ -1,5 +1,6 @@
 package na.controller.util;
 
+import na.controller.services.ImageGetService;
 import na.error.ResponseHandleException;
 import org.apache.log4j.Logger;
 import org.apache.poi.util.Units;
@@ -8,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -16,14 +16,11 @@ import na.pojo.News;
 import na.pojo.ResultAndError;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
-import na.controller.services.ImageLookupService;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 @Component("docxCreator")
 public class DocxCreator implements ResponseCreator {
@@ -33,21 +30,21 @@ public class DocxCreator implements ResponseCreator {
     private int tempWidthValue;
     private int tempHeightValue;
 
-    private ImageLookupService imageLookupService;
-    private String newsTemplatePath;
+    private final ImageGetService imageGetService;
+    private final String newsTemplatePath;
     private int imagePixelsWidth;
 
     @Autowired
-    public DocxCreator(ImageLookupService imageLookupService,
+    public DocxCreator(ImageGetService imageGetService,
                        @Value("${newsTemplatePath}") String newsTemplatePath) {
-        if(imageLookupService == null) {
-            logger.error("Image lookup service has null value");
+        if(imageGetService == null) {
+            logger.error("Image get service has null value");
 
             throw new IllegalArgumentException(
-                    "Image lookup service has null value"
+                    "Image get service has null value"
             );
         }
-        this.imageLookupService = imageLookupService;
+        this.imageGetService = imageGetService;
 
         if(newsTemplatePath == null) {
             throw new IllegalArgumentException(
@@ -124,7 +121,7 @@ public class DocxCreator implements ResponseCreator {
 
             XWPFParagraph paragraph;
 
-            imagesData = imageLookupService.asyncRequests(newsList);
+            imagesData = imageGetService.asyncRequests(newsList);
 
             for(News news : newsList) {
                 paragraph = doc.createParagraph();

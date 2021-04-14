@@ -1,5 +1,6 @@
 package na.controller;
 
+import na.controller.services.NewsGetService;
 import na.parser.NewsParser;
 import na.sources.IdParams;
 import na.sources.UrnParams;
@@ -21,12 +22,13 @@ public abstract class NewsSearchController {
             Logger.getLogger(NewsSearchController.class);
 
     private final NewsLookupService newsLookupService;
+    private final NewsGetService newsGetService;
 
     protected ApplicationContext beanContext;
     protected int lastErrorCode;
 
     public NewsSearchController(NewsLookupService newsLookupService,
-                                int newsLookupThreads) {
+                                NewsGetService newsGetService) {
         if(newsLookupService == null) {
             logger.error("News lookup service has null value");
 
@@ -34,7 +36,15 @@ public abstract class NewsSearchController {
                     "News lookup service has null value"
             );
         }
+        if(newsGetService == null) {
+            logger.error("News get service has null value");
+
+            throw new IllegalArgumentException(
+                    "News get service has null value"
+            );
+        }
         this.newsLookupService = newsLookupService;
+        this.newsGetService = newsGetService;
 
         lastErrorCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
@@ -100,9 +110,9 @@ public abstract class NewsSearchController {
             pagesAmount++;
         }
 
-        result = newsLookupService.asyncRequest(idParams, pagesAmount);
-        if(newsLookupService.getLastErrorCode() != null) {
-            lastErrorCode = newsLookupService.getLastErrorCode();
+        result = newsGetService.asyncRequest(idParams, pagesAmount);
+        if(newsGetService.getLastErrorCode() != null) {
+            lastErrorCode = newsGetService.getLastErrorCode();
         }
         return result;
     }
