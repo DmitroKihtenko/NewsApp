@@ -2,6 +2,8 @@ package na.pojo;
 
 import org.apache.log4j.Logger;
 
+import java.util.Objects;
+
 public class ResultAndError<T> {
     private final Logger logger = Logger.getLogger(ResultAndError.class);
 
@@ -61,5 +63,25 @@ public class ResultAndError<T> {
                 ", errorCode='" + errorCode + '\'' +
                 ", errorMessage='" + errorMessage + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ResultAndError<?> that = (ResultAndError<?>) o;
+        return Objects.equals(logger, that.logger) &&
+                Objects.equals(result, that.result) &&
+                Objects.equals(errorCode, that.errorCode)
+                && Objects.equals(errorMessage, that.errorMessage);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(logger, result, errorCode, errorMessage);
     }
 }

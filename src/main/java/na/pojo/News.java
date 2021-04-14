@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Objects;
 
 public class News {
     private static final Logger logger = Logger.getLogger(News.class);
@@ -103,5 +104,26 @@ public class News {
                 ", author='" + author + '\'' +
                 ", url='" + url + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        News news = (News) o;
+        return Objects.equals(title, news.title) &&
+                Objects.equals(description, news.description) &&
+                Objects.equals(imageUrl, news.imageUrl) &&
+                Objects.equals(author, news.author) &&
+                Objects.equals(url, news.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, imageUrl, author, url);
     }
 }

@@ -1,6 +1,6 @@
 package na.sources.newsApi;
 import na.sources.SourcesParams;
-import na.pojo.MediaTypeLogic;
+import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;

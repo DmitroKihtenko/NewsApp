@@ -12,10 +12,8 @@ import na.pojo.News;
 import na.pojo.ResultAndError;
 import na.controller.services.NewsLookupService;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 public abstract class NewsSearchController {
@@ -23,7 +21,6 @@ public abstract class NewsSearchController {
             Logger.getLogger(NewsSearchController.class);
 
     private final NewsLookupService newsLookupService;
-    private int newsLookupThreads;
 
     protected ApplicationContext beanContext;
     protected int lastErrorCode;
@@ -31,24 +28,13 @@ public abstract class NewsSearchController {
     public NewsSearchController(NewsLookupService newsLookupService,
                                 int newsLookupThreads) {
         if(newsLookupService == null) {
-            logger.error("News lookup na.service has null value");
+            logger.error("News lookup service has null value");
 
             throw new IllegalArgumentException(
-                    "News lookup na.service has null value"
+                    "News lookup service has null value"
             );
         }
         this.newsLookupService = newsLookupService;
-
-        if(newsLookupThreads <= 0) {
-            logger.error("Images lookup threads amount has " +
-                    "non-positive value");
-
-            throw new IllegalArgumentException(
-                    "Images lookup threads amount has " +
-                            "non-positive value"
-            );
-        }
-        this.newsLookupThreads = newsLookupThreads;
 
         lastErrorCode = HttpStatus.INTERNAL_SERVER_ERROR.value();
     }
@@ -56,68 +42,6 @@ public abstract class NewsSearchController {
     @Autowired
     public void setBeanContext(ApplicationContext applicationContext) {
         this.beanContext = applicationContext;
-    }
-
-    protected ResultAndError<Iterable<News>>
-    asyncRequest(IdParams idParams, int pagesAmount) throws ExecutionException, InterruptedException {
-        LinkedList<News> generalList = new LinkedList<>();
-        ResultAndError<Iterable<News>> rae =
-                new ResultAndError<>(generalList);
-        ResultAndError<Iterable<News>> newsJsonResult;
-        ResponseEntity<String> requestResult;
-        CompletableFuture<ResponseEntity<String>>[] threadResults =
-                new CompletableFuture[newsLookupThreads];
-        int threadIter = 0;
-        NewsParser newsFullParser = (NewsParser) beanContext.
-                getBean("newsFullParser");
-        IdParams cloneIdParams;
-
-        logger.info("Starting send asynchronous news requests " +
-                "with " + newsLookupThreads + " threads");
-
-        for(int page = 1; page <= pagesAmount; page++) {
-            cloneIdParams = idParams.clone();
-            cloneIdParams.setPage(page);
-            threadResults[threadIter] =
-                    newsLookupService.lookup(cloneIdParams);
-
-            if(threadIter >= newsLookupThreads - 1 ||
-                    page >= pagesAmount) {
-                CompletableFuture.allOf(Arrays.copyOf(
-                        threadResults, threadIter + 1)).
-                        join();
-
-                for(int threadRead = 0; threadRead <=
-                        threadIter; threadRead++) {
-                    requestResult = threadResults[threadRead].get();
-
-                    if(requestResult.getStatusCode().value() >=
-                            HttpStatus.BAD_REQUEST.value()) {
-                        this.lastErrorCode =
-                                requestResult.getStatusCode().value();
-                    }
-                    newsJsonResult = (ResultAndError<Iterable<News>>)
-                            newsFullParser.parse(requestResult.getBody());
-
-                    if(!newsJsonResult.getStatus()) {
-                        rae.setError(newsJsonResult.getErrorCode(),
-                                newsJsonResult.getErrorMessage());
-                        return rae;
-                    }
-
-                    for(News news : newsJsonResult.getResult()) {
-                        generalList.add(news);
-                    }
-                }
-                threadIter = 0;
-            } else {
-                threadIter++;
-            }
-        }
-
-        logger.info("Successfully requested");
-
-        return rae;
     }
 
     protected ResultAndError<Iterable<News>> searchNews(UrnParams
@@ -131,6 +55,7 @@ public abstract class NewsSearchController {
 
         ResultAndError<List<String>> idResult;
         ResultAndError<Integer> pagesResult;
+        ResultAndError<Iterable<News>> result;
         int pagesAmount;
 
         IdParams idParams = (IdParams) beanContext.
@@ -140,7 +65,7 @@ public abstract class NewsSearchController {
         NewsParser resultsValueParser = (NewsParser) beanContext.
                 getBean("resultsValueParser");
 
-        rawSourcesJson = newsLookupService.lookup(sourcesParams).get();
+        rawSourcesJson = newsLookupService.lookup(sourcesParams);
         if(rawSourcesJson.getStatusCode().value() >=
                 HttpStatus.BAD_REQUEST.value()) {
             this.lastErrorCode = rawSourcesJson.
@@ -157,7 +82,7 @@ public abstract class NewsSearchController {
 
         IdParams sourcesIdsClone = idParams.clone();
         sourcesIdsClone.setPageSize(1);
-        resultsValueJson = newsLookupService.lookup(sourcesIdsClone).get();
+        resultsValueJson = newsLookupService.lookup(sourcesIdsClone);
         if(resultsValueJson.getStatusCode().value() >=
                 HttpStatus.BAD_REQUEST.value()) {
             lastErrorCode = resultsValueJson.getStatusCode().value();
@@ -175,6 +100,10 @@ public abstract class NewsSearchController {
             pagesAmount++;
         }
 
-        return asyncRequest(idParams, pagesAmount);
+        result = newsLookupService.asyncRequest(idParams, pagesAmount);
+        if(newsLookupService.getLastErrorCode() != null) {
+            lastErrorCode = newsLookupService.getLastErrorCode();
+        }
+        return result;
     }
 }

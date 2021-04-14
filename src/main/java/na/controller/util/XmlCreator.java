@@ -8,7 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import na.pojo.News;
 import na.pojo.ResultAndError;
-import na.pojo.MediaTypeLogic;
+import na.service.MediaTypeLogic;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

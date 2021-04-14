@@ -14,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import na.pojo.News;
 import na.pojo.ResultAndError;
-import na.pojo.MediaTypeLogic;
+import na.service.MediaTypeLogic;
 import na.controller.services.NewsLookupService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -111,7 +111,7 @@ public class NewsResponseController extends NewsSearchController {
             searchResult = searchNews(sourcesParams);
 
             if(!searchResult.getStatus()) {
-                logger.warn("Get news from source error. Code:" +
+                logger.warn("Get news error. Code: " +
                         searchResult.getErrorCode() +
                         " Message: " + searchResult.
                         getErrorMessage());

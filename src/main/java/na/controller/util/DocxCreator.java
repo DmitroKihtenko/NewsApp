@@ -36,17 +36,15 @@ public class DocxCreator implements ResponseCreator {
     private ImageLookupService imageLookupService;
     private String newsTemplatePath;
     private int imagePixelsWidth;
-    private int imageLookupThreads;
 
     @Autowired
     public DocxCreator(ImageLookupService imageLookupService,
-                       @Value("${imagesLookupThreads}") int imageLookupThreads,
                        @Value("${newsTemplatePath}") String newsTemplatePath) {
         if(imageLookupService == null) {
-            logger.error("Image lookup na.service has null value");
+            logger.error("Image lookup service has null value");
 
             throw new IllegalArgumentException(
-                    "Image lookup na.service has null value"
+                    "Image lookup service has null value"
             );
         }
         this.imageLookupService = imageLookupService;
@@ -58,13 +56,6 @@ public class DocxCreator implements ResponseCreator {
         }
         this.newsTemplatePath = newsTemplatePath;
 
-        if(imageLookupThreads <= 0) {
-            throw new IllegalArgumentException(
-                    "Image lookup threads amount has " +
-                            "non-positive value"
-            );
-        }
-        this.imageLookupThreads = imageLookupThreads;
         imagePixelsWidth = 400;
     }
 
@@ -85,98 +76,6 @@ public class DocxCreator implements ResponseCreator {
         tempHeightValue = (int)((float)image.getHeight() * coefficient);
         tempWidthValue = Units.toEMU(imagePixelsWidth);
         tempHeightValue = Units.toEMU(tempHeightValue);
-    }
-
-    protected Map<Integer, ByteArrayOutputStream>
-    asyncRequests(Iterable<News> newsList) throws IOException, ExecutionException, InterruptedException {
-        TreeMap<Integer, ByteArrayOutputStream> resultMap =
-                new TreeMap<>();
-        ByteArrayOutputStream imageStream;
-        CompletableFuture<ResponseEntity<byte[]>>[]
-                imageResponses = new
-                CompletableFuture[imageLookupThreads];
-        ResponseEntity<byte[]> lookupResult;
-        int newsIndex = 0;
-        int insertIndex = 0;
-        int threadIter = 0;
-
-        Iterator<News> newsIter = newsList.iterator();
-        News news;
-
-        logger.info("Starting send asynchronous image get requests " +
-                "with " + imageLookupThreads + " threads");
-
-        while(newsIter.hasNext()) {
-            newsIndex++;
-            news = newsIter.next();
-            if(news.getImageUrl() != null) {
-                resultMap.put(newsIndex, null);
-                try {
-                    imageResponses[threadIter] = imageLookupService.
-                            lookup(news.getImageUrl());
-                } catch (Exception e) {
-                    logger.warn("Error while downloading image " +
-                            "file from " + news.getImageUrl() +
-                            " .Exception message: " +
-                            Objects.requireNonNullElse(e.getMessage(),
-                                    e.toString()));
-                }
-
-                if (threadIter >= imageLookupThreads - 1 ||
-                        !newsIter.hasNext()) {
-
-                    if (threadIter < imageLookupThreads - 1) {
-                        CompletableFuture.allOf(Arrays.
-                                copyOf(imageResponses,
-                                        threadIter + 1)).join();
-                    } else {
-                        CompletableFuture.allOf(imageResponses).join();
-                    }
-
-                    for (int threadRead = 0; threadRead <= threadIter;
-                         threadRead++) {
-                        insertIndex++;
-                        while(!resultMap.containsKey(
-                                insertIndex) && insertIndex
-                                <= newsIndex) {
-                            insertIndex++;
-                        }
-
-                        try {
-                            lookupResult =
-                                    imageResponses[threadRead].get();
-                            if (lookupResult.getStatusCode().value() <
-                                    HttpStatus.BAD_REQUEST.value()) {
-                                imageStream = new
-                                        ByteArrayOutputStream();
-                                imageStream.write(lookupResult.
-                                        getBody());
-
-                                resultMap.put(insertIndex, imageStream);
-                            } else {
-                                logger.warn("News image source " +
-                                        "returned status code " +
-                                        lookupResult.getStatusCode().
-                                                value());
-
-                                resultMap.remove(insertIndex);
-                            }
-                        } catch (NullPointerException e) {
-                            logger.warn("NullPointerException when " +
-                                    "trying to get image stream");
-                        }
-                    }
-
-                    threadIter = 0;
-                } else {
-                    threadIter++;
-                }
-            }
-        }
-
-        logger.info("Image get completed successfully");
-
-        return resultMap;
     }
 
     @Override
@@ -225,7 +124,7 @@ public class DocxCreator implements ResponseCreator {
 
             XWPFParagraph paragraph;
 
-            imagesData = asyncRequests(newsList);
+            imagesData = imageLookupService.asyncRequests(newsList);
 
             for(News news : newsList) {
                 paragraph = doc.createParagraph();

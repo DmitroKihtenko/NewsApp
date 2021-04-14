@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import na.pojo.News;
 import na.pojo.ResultAndError;
-import na.pojo.MediaTypeLogic;
+import na.service.MediaTypeLogic;
 
 @Component("jsonCreator")
 public class JsonCreator implements ResponseCreator {
