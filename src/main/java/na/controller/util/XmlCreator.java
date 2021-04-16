@@ -17,6 +17,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 @Component("xmlCreator")
@@ -32,7 +33,8 @@ public class XmlCreator implements ResponseCreator {
                 contentType(MediaTypeLogic.
                         createFromString(MediaType.
                                 APPLICATION_XML_VALUE)).
-                contentLength(bodyString.length()).
+                contentLength(bodyString.getBytes(
+                        StandardCharsets.UTF_8).length).
                 body(bodyString);
     }
 
@@ -53,25 +55,31 @@ public class XmlCreator implements ResponseCreator {
             for(News news : newsList) {
                 newsTag = doc.createElement("news");
 
-                newsProperty = doc.createElement("title");
-                newsProperty.setTextContent(news.getTitle());
-                newsTag.appendChild(newsProperty);
-
-                newsProperty = doc.createElement("description");
-                newsProperty.setTextContent(news.getDescription());
-                newsTag.appendChild(newsProperty);
-
-                newsProperty = doc.createElement("author");
-                newsProperty.setTextContent(news.getAuthor());
-                newsTag.appendChild(newsProperty);
-
-                newsProperty = doc.createElement("url");
-                newsProperty.setTextContent(news.getUrl());
-                newsTag.appendChild(newsProperty);
-
-                newsProperty = doc.createElement("imageUrl");
-                newsProperty.setTextContent(news.getImageUrl());
-                newsTag.appendChild(newsProperty);
+                if(news.getTitle() != null) {
+                    newsProperty = doc.createElement("title");
+                    newsProperty.setTextContent(news.getTitle());
+                    newsTag.appendChild(newsProperty);
+                }
+                if(news.getAuthor() != null) {
+                    newsProperty = doc.createElement("author");
+                    newsProperty.setTextContent(news.getAuthor());
+                    newsTag.appendChild(newsProperty);
+                }
+                if(news.getDescription() != null) {
+                    newsProperty = doc.createElement("description");
+                    newsProperty.setTextContent(news.getDescription());
+                    newsTag.appendChild(newsProperty);
+                }
+                if(news.getUrl() != null) {
+                    newsProperty = doc.createElement("url");
+                    newsProperty.setTextContent(news.getUrl());
+                    newsTag.appendChild(newsProperty);
+                }
+                if(news.getImageUrl() != null) {
+                    newsProperty = doc.createElement("imageUrl");
+                    newsProperty.setTextContent(news.getImageUrl());
+                    newsTag.appendChild(newsProperty);
+                }
 
                 root.appendChild(newsTag);
             }

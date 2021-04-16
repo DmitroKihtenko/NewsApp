@@ -1,5 +1,6 @@
 package na.controller.services;
 
+import na.service.Assertions;
 import na.sources.NewsSite;
 import na.sources.UrnParams;
 import org.apache.commons.codec.Charsets;
@@ -27,20 +28,9 @@ public class NewsLookupService {
     @Autowired
     public NewsLookupService(RestTemplate restTemplate,
                              NewsSite newsSite) {
-        if(newsSite == null) {
-            logger.error("News source has null value");
+        Assertions.isNotNull(restTemplate, "Rest template", logger);
+        Assertions.isNotNull(newsSite, "News site", logger);
 
-            throw new IllegalArgumentException(
-                    "News source has null value"
-            );
-        }
-        if(restTemplate == null) {
-            logger.error("Rest template parameter has null value");
-
-            throw new IllegalArgumentException(
-                    "Rest template parameter has null value"
-            );
-        }
         this.newsSite = newsSite;
         this.restTemplate = restTemplate;
     }

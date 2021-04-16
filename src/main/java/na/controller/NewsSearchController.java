@@ -2,6 +2,7 @@ package na.controller;
 
 import na.controller.services.NewsGetService;
 import na.parser.NewsParser;
+import na.service.Assertions;
 import na.sources.IdParams;
 import na.sources.UrnParams;
 import org.apache.log4j.Logger;
@@ -29,20 +30,11 @@ public abstract class NewsSearchController {
 
     public NewsSearchController(NewsLookupService newsLookupService,
                                 NewsGetService newsGetService) {
-        if(newsLookupService == null) {
-            logger.error("News lookup service has null value");
+        Assertions.isNotNull(newsLookupService, "News lookup service",
+                logger);
+        Assertions.isNotNull(newsGetService, "News get service",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "News lookup service has null value"
-            );
-        }
-        if(newsGetService == null) {
-            logger.error("News get service has null value");
-
-            throw new IllegalArgumentException(
-                    "News get service has null value"
-            );
-        }
         this.newsLookupService = newsLookupService;
         this.newsGetService = newsGetService;
 

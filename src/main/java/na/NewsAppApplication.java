@@ -1,11 +1,13 @@
 package na;
 
+import na.service.Assertions;
 import org.apache.http.conn.ssl.NoopHostnameVerifier;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.ssl.SSLContexts;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -27,14 +29,14 @@ import java.security.NoSuchAlgorithmException;
 @EnableAsync
 @EnableWebMvc
 public class NewsAppApplication {
+    private final static Logger logger =
+            Logger.getLogger(NewsAppApplication.class);
+
     @Bean("mainThreadPoolTaskExecutor")
     public TaskExecutor getAsyncExecutor(
             @Value("${runtimeThreads}") int runtimeThreads) {
-        if(runtimeThreads <= 0) {
-            throw new IllegalArgumentException(
-                    "Runtime threads parameter has non-positive value"
-            );
-        }
+        Assertions.isPositive(runtimeThreads, "Runtime threads",
+                logger);
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         taskExecutor.setCorePoolSize(runtimeThreads);
         taskExecutor.setMaxPoolSize(runtimeThreads);

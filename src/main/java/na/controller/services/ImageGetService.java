@@ -1,6 +1,7 @@
 package na.controller.services;
 
 import na.pojo.News;
+import na.service.Assertions;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,28 +25,18 @@ public class ImageGetService {
 
     @Autowired
     public ImageGetService(ImageLookupService lookupService) {
-        if(lookupService == null) {
-            logger.error("Images lookup service has null value");
+        Assertions.isNotNull(lookupService, "Image lookup service",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "Images lookup service has null value"
-            );
-        }
         this.lookupService = lookupService;
     }
 
     @Autowired
     public void setLookupThreads(
             @Value("${imagesLookupThreads}") int lookupThreads) {
-        if(lookupThreads <= 0) {
-            logger.error(
-                    "Image lookup threads has non-positive value"
-            );
+        Assertions.isPositive(lookupThreads, "Image lookup threads",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "mage lookup threads has non-positive value"
-            );
-        }
         this.lookupThreads = lookupThreads;
     }
 

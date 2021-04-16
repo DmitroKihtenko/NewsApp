@@ -1,5 +1,6 @@
 package na.pojo;
 
+import na.service.Assertions;
 import org.apache.log4j.Logger;
 
 import java.util.Objects;
@@ -20,24 +21,16 @@ public class ResultAndError<T> {
     }
 
     public void setError(String errorCode, String errorMessage) {
-        if(errorCode == null || errorMessage == null) {
-            logger.error("Error parameter has null value");
+        Assertions.isNotNull(errorCode, "Error code", logger);
+        Assertions.isNotNull(errorMessage, "Error message", logger);
 
-            throw new IllegalArgumentException(
-                    "Error parameter has null value"
-            );
-        }
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;
     }
 
     public void setResult(T resultObject) {
-        if (resultObject == null) {
-            logger.error("Result parameter has null value");
+        Assertions.isNotNull(resultObject, "result object", logger);
 
-            throw new IllegalArgumentException(
-                    "Result parameter has null value");
-        }
         result = resultObject;
     }
 

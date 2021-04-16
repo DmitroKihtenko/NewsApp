@@ -10,6 +10,8 @@ import na.pojo.News;
 import na.pojo.ResultAndError;
 import na.service.MediaTypeLogic;
 
+import java.nio.charset.StandardCharsets;
+
 @Component("jsonCreator")
 public class JsonCreator implements ResponseCreator {
     private static final Logger logger = Logger.getLogger(JsonCreator.class);
@@ -22,7 +24,8 @@ public class JsonCreator implements ResponseCreator {
                 contentType(MediaTypeLogic.
                         createFromString(MediaType.
                                 APPLICATION_JSON_VALUE)).
-                contentLength(bodyString.length()).
+                contentLength(bodyString.getBytes(
+                        StandardCharsets.UTF_8).length).
                 body(bodyString);
     }
 
@@ -38,11 +41,21 @@ public class JsonCreator implements ResponseCreator {
 
             for(News news : newsList) {
                 newsObject = new JSONObject();
-                newsObject.put("title", news.getTitle());
-                newsObject.put("author", news.getAuthor());
-                newsObject.put("description", news.getDescription());
-                newsObject.put("url", news.getUrl());
-                newsObject.put("imageUrl", news.getImageUrl());
+                if(news.getTitle() != null) {
+                    newsObject.put("title", news.getTitle());
+                }
+                if(news.getAuthor() != null) {
+                    newsObject.put("author", news.getAuthor());
+                }
+                if(news.getDescription() != null) {
+                    newsObject.put("description", news.getDescription());
+                }
+                if(news.getUrl() != null) {
+                    newsObject.put("url", news.getUrl());
+                }
+                if(news.getImageUrl() != null) {
+                    newsObject.put("imageUrl", news.getImageUrl());
+                }
 
                 array.put(newsObject);
             }

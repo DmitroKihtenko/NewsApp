@@ -8,13 +8,7 @@ public class MediaTypeLogic {
             Logger.getLogger(MediaTypeLogic.class);
 
     public static MediaType createFromString(String mediaType) {
-        if(mediaType == null) {
-            logger.error("Media type string has null value");
-
-            throw new IllegalArgumentException(
-                    "Media type string has null value"
-            );
-        }
+        Assertions.isNotNull(mediaType, "Media type string", logger);
 
         String type = null;
         String subtype = null;

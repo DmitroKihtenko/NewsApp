@@ -1,5 +1,6 @@
 package na.controller.services;
 
+import na.service.Assertions;
 import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,13 +22,9 @@ public class ImageLookupService {
 
     @Autowired
     public ImageLookupService(RestTemplate restTemplate) {
-        if(restTemplate == null) {
-            logger.error("Rest template parameter has null value");
+        Assertions.isNotNull(restTemplate, "Rest template",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "Rest template parameter has null value"
-            );
-        }
         this.restTemplate = restTemplate;
     }
 

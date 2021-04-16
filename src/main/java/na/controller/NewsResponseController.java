@@ -2,6 +2,7 @@ package na.controller;
 
 import na.controller.services.NewsGetService;
 import na.error.ErrorManager;
+import na.service.Assertions;
 import na.sources.SourcesParams;
 import na.controller.util.NewsCreatorFactory;
 import na.controller.util.ResponseCreator;
@@ -34,13 +35,9 @@ public class NewsResponseController extends NewsSearchController {
                                   NewsGetService newsGetService,
                                   ErrorManager errorManager) {
         super(newsLookupService, newsGetService);
-        if(errorManager == null) {
-            logger.error("Error manager parameter has null value");
+        Assertions.isNotNull(errorManager, "Error manager",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "Error manager parameter has null value"
-            );
-        }
         this.errorManager = errorManager;
     }
 

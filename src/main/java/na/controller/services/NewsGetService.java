@@ -3,6 +3,7 @@ package na.controller.services;
 import na.parser.NewsParser;
 import na.pojo.News;
 import na.pojo.ResultAndError;
+import na.service.Assertions;
 import na.sources.IdParams;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,20 +32,10 @@ public class NewsGetService {
     public NewsGetService(NewsLookupService lookupService,
                           @Qualifier("newsFullParser")
                                      NewsParser fullParser) {
-        if(lookupService == null) {
-            logger.error("News lookup service has null value");
-
-            throw new IllegalArgumentException(
-                    "News lookup service has null value"
-            );
-        }
-        if(fullParser == null) {
-            logger.error("News full parser parameter has null value");
-
-            throw new IllegalArgumentException(
-                    "News full parser parameter has null value"
-            );
-        }
+        Assertions.isNotNull(lookupService, "News lookup service",
+                logger);
+        Assertions.isNotNull(fullParser, "News full parser",
+                logger);
         this.lookupService = lookupService;
         this.fullParser = fullParser;
         lookupThreads = 1;
@@ -52,14 +43,9 @@ public class NewsGetService {
 
     @Autowired
     public void setLookupThreads(@Value("${newsLookupThreads}") int lookupThreads) {
-        if(lookupThreads <= 0) {
-            logger.error("Lookup threads amount has " +
-                    "non-positive value");
+        Assertions.isPositive(lookupThreads, "News lookup threads",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "Lookup threads amount has non-positive value"
-            );
-        }
         this.lookupThreads = lookupThreads;
     }
 
