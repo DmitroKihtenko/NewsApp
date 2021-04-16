@@ -35,20 +35,23 @@ public class ImageGetService {
     }
 
     @Autowired
-    public void setLookupThreads(@Value("${imagesLookupThreads}") int lookupThreads) {
+    public void setLookupThreads(
+            @Value("${imagesLookupThreads}") int lookupThreads) {
         if(lookupThreads <= 0) {
-            logger.error("Image lookup threads has " +
-                    "non-positive value");
+            logger.error(
+                    "Image lookup threads has non-positive value"
+            );
 
             throw new IllegalArgumentException(
-                    "Image lookup threads has non-positive value"
+                    "mage lookup threads has non-positive value"
             );
         }
         this.lookupThreads = lookupThreads;
     }
 
     public Map<Integer, ByteArrayOutputStream>
-    asyncRequests(Iterable<News> newsList) throws IOException, ExecutionException, InterruptedException {
+    asyncRequests(Iterable<News> newsList) throws IOException,
+            ExecutionException, InterruptedException {
         TreeMap<Integer, ByteArrayOutputStream> resultMap =
                 new TreeMap<>();
         ByteArrayOutputStream imageStream;
@@ -86,12 +89,21 @@ public class ImageGetService {
                 if (threadIter >= lookupThreads - 1 ||
                         !newsIter.hasNext()) {
 
-                    if (threadIter < lookupThreads - 1) {
-                        CompletableFuture.allOf(Arrays.
-                                copyOf(imageResponses,
-                                        threadIter + 1)).join();
-                    } else {
-                        CompletableFuture.allOf(imageResponses).join();
+                    try {
+                        if (threadIter < lookupThreads - 1) {
+                            CompletableFuture.allOf(Arrays.
+                                    copyOf(imageResponses,
+                                            threadIter + 1)).
+                                    join();
+                        } else {
+                            CompletableFuture.
+                                    allOf(imageResponses).join();
+                        }
+                    } catch (Exception e) {
+                        logger.warn("Threads synchronization error: " +
+                                Objects.requireNonNullElse(e.
+                                                getMessage(),
+                                        e.toString()));
                     }
 
                     for (int threadRead = 0; threadRead <= threadIter;
@@ -113,7 +125,8 @@ public class ImageGetService {
                                 imageStream.write(lookupResult.
                                         getBody());
 
-                                resultMap.put(insertIndex, imageStream);
+                                resultMap.put(insertIndex,
+                                        imageStream);
                             } else {
                                 logger.warn("News image source " +
                                         "returned status code " +

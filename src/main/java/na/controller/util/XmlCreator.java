@@ -21,7 +21,8 @@ import java.util.Objects;
 
 @Component("xmlCreator")
 public class XmlCreator implements ResponseCreator {
-    private static final Logger logger = Logger.getLogger(XmlCreator.class);
+    private static final Logger logger =
+            Logger.getLogger(XmlCreator.class);
 
     @Override
     public ResponseEntity<String> entity(Object body) {
@@ -41,7 +42,8 @@ public class XmlCreator implements ResponseCreator {
         try {
             logger.info("Starting creating response body");
 
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbf = DocumentBuilderFactory.
+                    newInstance();
             DocumentBuilder db  = dbf.newDocumentBuilder();
             Document doc = db.newDocument();
             Element root = doc.createElement("newsList");

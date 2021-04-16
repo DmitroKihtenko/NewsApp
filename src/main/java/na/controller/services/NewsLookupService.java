@@ -25,7 +25,8 @@ public class NewsLookupService {
     private final NewsSite newsSite;
 
     @Autowired
-    public NewsLookupService(NewsSite newsSite) {
+    public NewsLookupService(RestTemplate restTemplate,
+                             NewsSite newsSite) {
         if(newsSite == null) {
             logger.error("News source has null value");
 
@@ -33,8 +34,15 @@ public class NewsLookupService {
                     "News source has null value"
             );
         }
+        if(restTemplate == null) {
+            logger.error("Rest template parameter has null value");
+
+            throw new IllegalArgumentException(
+                    "Rest template parameter has null value"
+            );
+        }
         this.newsSite = newsSite;
-        restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
     }
 
     @Async("mainThreadPoolTaskExecutor")
@@ -53,15 +61,17 @@ public class NewsLookupService {
         List<Charset> requestCharset = new ArrayList<>(1);
         requestCharset.add(Charsets.toCharset("UTF-8"));
         requestHeaders.setAcceptCharset(requestCharset);
-        HttpEntity<String> requestEntity = new HttpEntity<>("", requestHeaders);
+        HttpEntity<String> requestEntity = new HttpEntity<>("",
+                requestHeaders);
 
         logger.info("Attempt to lookup response from " + requestUri);
 
         try {
-            response = restTemplate.exchange(requestUri, HttpMethod.GET,
-                    requestEntity, String.class);
+            response = restTemplate.exchange(requestUri,
+                    HttpMethod.GET, requestEntity, String.class);
         } catch (RestClientResponseException e) {
-            logger.info("Source returned status code: " + e.getRawStatusCode());
+            logger.info("Source returned status code: " +
+                    e.getRawStatusCode());
 
             response = ResponseEntity.status(e.getRawStatusCode()).
                     body(e.getResponseBodyAsString());

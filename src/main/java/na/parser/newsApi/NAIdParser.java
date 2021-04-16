@@ -20,7 +20,8 @@ public class NAIdParser implements NewsParser {
         JSONObject jsonObject;
         JSONArray newsArray;
         LinkedList<String> returnList = new LinkedList<>();
-        ResultAndError<List<String>> resultIds = new ResultAndError<>(returnList);
+        ResultAndError<List<String>> resultIds = new
+                ResultAndError<>(returnList);
         int idErrors = 0;
 
         logger.info("Starting parsing news sources");
@@ -52,10 +53,12 @@ public class NAIdParser implements NewsParser {
                     e.getMessage());
         }
         if(idErrors != 0) {
-            logger.error("There are " + idErrors + "id parsing errors");
+            logger.error("There are " + idErrors +
+                    "id parsing errors");
 
             resultIds.setError("SourceIdParseError",
-                    "There are " + idErrors + "id parsing errors");
+                    "There are " + idErrors +
+                            "id parsing errors");
         } else {
             logger.info("Successfully parsed");
         }

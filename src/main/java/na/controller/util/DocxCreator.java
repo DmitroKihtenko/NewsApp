@@ -36,7 +36,8 @@ public class DocxCreator implements ResponseCreator {
 
     @Autowired
     public DocxCreator(ImageGetService imageGetService,
-                       @Value("${newsTemplatePath}") String newsTemplatePath) {
+                       @Value("${newsTemplatePath}")
+                               String newsTemplatePath) {
         if(imageGetService == null) {
             logger.error("Image get service has null value");
 
@@ -57,7 +58,8 @@ public class DocxCreator implements ResponseCreator {
     }
 
     @Autowired
-    public void setImagePixelsWidth(@Value("${newsImagePixelsWidth}") int imagePixelsWidth) {
+    public void setImagePixelsWidth(
+            @Value("${newsImagePixelsWidth}") int imagePixelsWidth) {
         if(imagePixelsWidth <= 0) {
             throw new IllegalArgumentException(
                     "Image width parameter has non-positive value"
@@ -70,7 +72,8 @@ public class DocxCreator implements ResponseCreator {
             throws IOException {
         BufferedImage image = ImageIO.read(imageStream);
         float coefficient = (float)imagePixelsWidth / image.getWidth();
-        tempHeightValue = (int)((float)image.getHeight() * coefficient);
+        tempHeightValue = (int)((float)image.getHeight() *
+                coefficient);
         tempWidthValue = Units.toEMU(imagePixelsWidth);
         tempHeightValue = Units.toEMU(tempHeightValue);
     }
@@ -151,7 +154,8 @@ public class DocxCreator implements ResponseCreator {
                 if(news.getDescription() != null) {
                     paragraph = doc.createParagraph();
                     paragraph.setStyle("Description");
-                    paragraph.createRun().setText(news.getDescription());
+                    paragraph.createRun().setText(news.
+                            getDescription());
                 }
 
                 if(news.getAuthor() != null) {

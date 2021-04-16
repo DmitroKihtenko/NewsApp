@@ -4,7 +4,8 @@ import org.apache.log4j.Logger;
 import org.springframework.http.MediaType;
 
 public class MediaTypeLogic {
-    private static final Logger logger = Logger.getLogger(MediaTypeLogic.class);
+    private static final Logger logger =
+            Logger.getLogger(MediaTypeLogic.class);
 
     public static MediaType createFromString(String mediaType) {
         if(mediaType == null) {

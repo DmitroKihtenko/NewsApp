@@ -35,7 +35,8 @@ public class ResultAndError<T> {
         if (resultObject == null) {
             logger.error("Result parameter has null value");
 
-            throw new IllegalArgumentException("Result parameter has null value");
+            throw new IllegalArgumentException(
+                    "Result parameter has null value");
         }
         result = resultObject;
     }

@@ -7,7 +7,8 @@ import java.util.Objects;
 public class ResponseHandleException extends Exception {
     private final String errorCode;
 
-    public ResponseHandleException(String errorCode, String errorMessage) {
+    public ResponseHandleException(String errorCode,
+                                   String errorMessage) {
         super(Objects.requireNonNullElse(errorMessage,
                 "Unknown error"));
         this.errorCode = Objects.requireNonNullElse(errorCode,

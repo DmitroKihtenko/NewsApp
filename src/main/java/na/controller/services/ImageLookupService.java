@@ -2,6 +2,7 @@ package na.controller.services;
 
 import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -18,8 +19,16 @@ public class ImageLookupService {
 
     private final RestTemplate restTemplate;
 
-    public ImageLookupService() {
-        restTemplate = new RestTemplate();
+    @Autowired
+    public ImageLookupService(RestTemplate restTemplate) {
+        if(restTemplate == null) {
+            logger.error("Rest template parameter has null value");
+
+            throw new IllegalArgumentException(
+                    "Rest template parameter has null value"
+            );
+        }
+        this.restTemplate = restTemplate;
     }
 
     @Async("mainThreadPoolTaskExecutor")

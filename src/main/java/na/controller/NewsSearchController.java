@@ -54,8 +54,8 @@ public abstract class NewsSearchController {
         this.beanContext = applicationContext;
     }
 
-    protected ResultAndError<Iterable<News>> searchNews(UrnParams
-                                                             sourcesParams)
+    protected ResultAndError<Iterable<News>> searchNews(
+            UrnParams sourcesParams)
             throws InterruptedException, ExecutionException {
         LinkedList<News> newsList = new LinkedList<>();
         ResultAndError<Iterable<News>> newsResult =

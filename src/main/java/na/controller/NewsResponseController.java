@@ -47,7 +47,8 @@ public class NewsResponseController extends NewsSearchController {
     @ExceptionHandler(value = {Exception.class})
     @ResponseBody
     public ResponseEntity<?> getErrorResponse(Exception e) {
-        String body = Objects.requireNonNullElse(e.getMessage(), e.toString());
+        String body = Objects.requireNonNullElse(e.getMessage(),
+                e.toString());
 
         logger.info("Sending error response with body: " +
                 body);
@@ -71,7 +72,9 @@ public class NewsResponseController extends NewsSearchController {
                                      @RequestParam(
                                              value = "language",
                                              defaultValue = "all")
-                                             String language) throws ResponseHandleException, ExecutionException, InterruptedException {
+                                             String language)
+            throws ResponseHandleException, ExecutionException,
+            InterruptedException {
         MediaType requestMediaType;
 
         logger.info("Client get news request");
@@ -95,7 +98,8 @@ public class NewsResponseController extends NewsSearchController {
                 getType() + "/" + requestMediaType.getSubtype());
 
         ResponseCreator creator = ((NewsCreatorFactory) beanContext.
-                getBean("creatorFactory")).getCreator(requestMediaType);
+                getBean("creatorFactory")).
+                getCreator(requestMediaType);
         Object body;
         ResultAndError<Iterable<News>> searchResult;
         ResultAndError<?> bodyResult;
