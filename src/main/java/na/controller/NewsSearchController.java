@@ -97,12 +97,8 @@ public abstract class NewsSearchController {
             return newsResult;
         }
 
-        pagesAmount = pagesResult.getResult() / idParams.getPageSize();
-        if (pagesResult.getResult() % idParams.getPageSize() != 0) {
-            pagesAmount++;
-        }
-
-        result = newsGetService.asyncRequest(idParams, pagesAmount);
+        result = newsGetService.asyncRequest(idParams,
+                pagesResult.getResult());
         if(newsGetService.getLastErrorCode() != null) {
             lastErrorCode = newsGetService.getLastErrorCode();
         }

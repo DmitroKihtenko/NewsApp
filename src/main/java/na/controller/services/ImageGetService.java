@@ -127,8 +127,7 @@ public class ImageGetService {
                                 resultMap.remove(insertIndex);
                             }
                         } catch (NullPointerException e) {
-                            logger.warn("NullPointerException when " +
-                                    "trying to get image stream");
+                            logger.warn("Image bytes have null value");
                         }
                     }
 

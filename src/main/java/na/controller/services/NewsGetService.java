@@ -26,6 +26,7 @@ public class NewsGetService {
     private final NewsLookupService lookupService;
     private int lookupThreads;
     private final NewsParser fullParser;
+    private int maximalNewsCount;
     private Integer lastErrorCode;
 
     @Autowired
@@ -39,6 +40,15 @@ public class NewsGetService {
         this.lookupService = lookupService;
         this.fullParser = fullParser;
         lookupThreads = 1;
+        this.maximalNewsCount = Integer.MAX_VALUE;
+    }
+
+    @Autowired
+    public void setMaximalNewsCount(@Value("${maxNewsCount}")
+                                                int maximalNewsCount) {
+        Assertions.isPositive(maximalNewsCount,"Maximal news count",
+                logger);
+        this.maximalNewsCount = maximalNewsCount;
     }
 
     @Autowired
@@ -54,7 +64,7 @@ public class NewsGetService {
     }
 
     public ResultAndError<Iterable<News>>
-    asyncRequest(IdParams idParams, int pagesAmount) throws ExecutionException, InterruptedException {
+    asyncRequest(IdParams idParams, int allNews) throws ExecutionException, InterruptedException {
         LinkedList<News> generalList = new LinkedList<>();
         ResultAndError<Iterable<News>> rae =
                 new ResultAndError<>(generalList);
@@ -65,12 +75,24 @@ public class NewsGetService {
         int threadIter = 0;
         IdParams cloneIdParams;
 
+        allNews = Integer.min(allNews, maximalNewsCount);
+        int pagesAmount = allNews / idParams.getPageSize();
+        if (allNews % idParams.getPageSize() != 0) {
+            pagesAmount++;
+        }
+
         logger.info("Starting send asynchronous news requests " +
                 "with " + lookupThreads + " threads");
 
         for(int page = 1; page <= pagesAmount; page++) {
             cloneIdParams = idParams.clone();
             cloneIdParams.setPage(page);
+            if(page == pagesAmount && allNews %
+                    idParams.getPageSize() != 0) {
+                cloneIdParams.setPageSize(allNews %
+                        idParams.getPageSize());
+            }
+
             threadResults[threadIter] =
                     lookupService.asyncLookup(cloneIdParams);
 
