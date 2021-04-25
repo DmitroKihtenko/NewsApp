@@ -33,8 +33,7 @@ public class XmlCreator implements ResponseCreator {
                 contentType(MediaTypeLogic.
                         createFromString(MediaType.
                                 APPLICATION_XML_VALUE)).
-                contentLength(bodyString.getBytes(
-                        StandardCharsets.UTF_8).length).
+                contentLength(bodyString.length()).
                 body(bodyString);
     }
 

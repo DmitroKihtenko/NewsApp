@@ -40,6 +40,10 @@ public class ImageGetService {
         this.lookupThreads = lookupThreads;
     }
 
+    public int getLookupThreads() {
+        return lookupThreads;
+    }
+
     public Map<Integer, ByteArrayOutputStream>
     asyncRequests(Iterable<News> newsList) throws IOException,
             ExecutionException, InterruptedException {

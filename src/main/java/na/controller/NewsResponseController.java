@@ -15,10 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import na.pojo.News;
 import na.pojo.ResultAndError;
-import na.service.MediaTypeLogic;
 import na.controller.services.NewsLookupService;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
@@ -57,7 +55,7 @@ public class NewsResponseController extends NewsSearchController {
     }
 
     @RequestMapping(value = "/getNews")
-    public ResponseEntity<?> getNewsResponse(HttpServletRequest request,
+    public ResponseEntity<?> getNewsResponse(
                                      @RequestParam(
                                              value = "category",
                                              defaultValue = "all")
@@ -69,34 +67,18 @@ public class NewsResponseController extends NewsSearchController {
                                      @RequestParam(
                                              value = "language",
                                              defaultValue = "all")
-                                             String language)
+                                             String language,
+                                     @RequestParam(value = "format",
+                                             defaultValue = "json")
+                                             String format)
             throws ResponseHandleException, ExecutionException,
             InterruptedException {
-        MediaType requestMediaType;
-
         logger.info("Client get news request");
-
-        logger.info("Client accept media type: " + Objects.
-                requireNonNullElse(request.
-                                getHeader("Accept"),
-                        "No accept"));
-
-        try {
-            requestMediaType = MediaTypeLogic.
-                    createFromString(request.getHeader("Accept"));
-        } catch (Exception e) {
-            requestMediaType = MediaTypeLogic.
-                    createFromString("application/" +
-                            "vnd.openxmlformats-officedocument." +
-                            "wordprocessingml.document");
-        }
-
-        logger.info("Response media type: " + requestMediaType.
-                getType() + "/" + requestMediaType.getSubtype());
 
         ResponseCreator creator = ((NewsCreatorFactory) beanContext.
                 getBean("creatorFactory")).
-                getCreator(requestMediaType);
+                getCreator(format);
+
         Object body;
         ResultAndError<Iterable<News>> searchResult;
         ResultAndError<?> bodyResult;
@@ -159,8 +141,8 @@ public class NewsResponseController extends NewsSearchController {
 
             throw new ResponseHandleException("formatError",
                     "Cannot create response " +
-                            "for media type "
-                            + requestMediaType);
+                            "for format "
+                            + format);
         }
 
         logger.info("Sending response to client");

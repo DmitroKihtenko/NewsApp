@@ -63,6 +63,14 @@ public class NewsGetService {
         return lastErrorCode;
     }
 
+    public int getMaximalNewsCount() {
+        return maximalNewsCount;
+    }
+
+    public int getLookupThreads() {
+        return lookupThreads;
+    }
+
     public ResultAndError<Iterable<News>>
     asyncRequest(IdParams idParams, int allNews) throws ExecutionException, InterruptedException {
         LinkedList<News> generalList = new LinkedList<>();
