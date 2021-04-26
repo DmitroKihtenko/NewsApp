@@ -84,9 +84,7 @@ public class DocxCreator implements ResponseCreator {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=newsList.docx")
-                .contentType(new MediaType("application",
-                        "vnd.openxmlformats-officedocument." +
+                        "attachment; filename=newsList.docx").contentType(MediaType.valueOf("application/vnd.openxmlformats-officedocument." +
                                 "wordprocessingml.document"))
                 .contentLength(resourceBody.contentLength())
                 .body(resourceBody);

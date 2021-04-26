@@ -8,22 +8,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import na.pojo.News;
 import na.pojo.ResultAndError;
-import na.service.MediaTypeLogic;
 
 import java.nio.charset.StandardCharsets;
 
 @Component("jsonCreator")
 public class JsonCreator implements ResponseCreator {
-    private static final Logger logger = Logger.getLogger(JsonCreator.class);
+    private static final Logger logger =
+            Logger.getLogger(JsonCreator.class);
 
     @Override
     public ResponseEntity<String> entity(Object body) {
         String bodyString = (String) body;
 
         return ResponseEntity.ok().
-                contentType(MediaTypeLogic.
-                        createFromString(MediaType.
-                                APPLICATION_JSON_VALUE)).
+                contentType(MediaType.APPLICATION_JSON).
                 contentLength(bodyString.getBytes(
                         StandardCharsets.UTF_8).length).
                 body(bodyString);

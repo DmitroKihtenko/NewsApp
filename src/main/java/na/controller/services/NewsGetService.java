@@ -32,7 +32,7 @@ public class NewsGetService {
     @Autowired
     public NewsGetService(NewsLookupService lookupService,
                           @Qualifier("newsFullParser")
-                                     NewsParser fullParser) {
+                                  NewsParser fullParser) {
         Assertions.isNotNull(lookupService, "News lookup service",
                 logger);
         Assertions.isNotNull(fullParser, "News full parser",
@@ -45,7 +45,7 @@ public class NewsGetService {
 
     @Autowired
     public void setMaximalNewsCount(@Value("${maxNewsCount}")
-                                                int maximalNewsCount) {
+                                            int maximalNewsCount) {
         Assertions.isPositive(maximalNewsCount,"Maximal news count",
                 logger);
         this.maximalNewsCount = maximalNewsCount;

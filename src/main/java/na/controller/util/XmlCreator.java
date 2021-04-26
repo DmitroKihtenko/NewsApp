@@ -1,22 +1,17 @@
 package na.controller.util;
 
 import org.apache.log4j.Logger;
-import org.springframework.http.MediaType;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import na.pojo.News;
 import na.pojo.ResultAndError;
-import na.service.MediaTypeLogic;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
@@ -30,10 +25,10 @@ public class XmlCreator implements ResponseCreator {
         String bodyString = (String) body;
 
         return ResponseEntity.ok().
-                contentType(MediaTypeLogic.
-                        createFromString(MediaType.
-                                APPLICATION_XML_VALUE)).
-                contentLength(bodyString.length()).
+                header("Content-type",
+                "application/xml;charset=utf-8").
+                contentLength(bodyString.getBytes(
+                        StandardCharsets.UTF_8).length).
                 body(bodyString);
     }
 
@@ -43,56 +38,44 @@ public class XmlCreator implements ResponseCreator {
         try {
             logger.info("Starting creating response body");
 
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.
-                    newInstance();
-            DocumentBuilder db  = dbf.newDocumentBuilder();
-            Document doc = db.newDocument();
-            Element root = doc.createElement("newsList");
+            Document document = DocumentHelper.createDocument();
+            document.setXMLEncoding("UTF-8");
+            Element root = document.addElement("newsList");
             Element newsTag;
-            Element newsProperty;
+            ByteArrayOutputStream byteStream =
+                    new ByteArrayOutputStream();
 
             for(News news : newsList) {
-                newsTag = doc.createElement("news");
+                newsTag = root.addElement("news");
 
                 if(news.getTitle() != null) {
-                    newsProperty = doc.createElement("title");
-                    newsProperty.setTextContent(news.getTitle());
-                    newsTag.appendChild(newsProperty);
+                    newsTag.addElement("title").
+                            addText(news.getTitle());
                 }
                 if(news.getAuthor() != null) {
-                    newsProperty = doc.createElement("author");
-                    newsProperty.setTextContent(news.getAuthor());
-                    newsTag.appendChild(newsProperty);
+                    newsTag.addElement("author").
+                            addText(news.getAuthor());
                 }
                 if(news.getDescription() != null) {
-                    newsProperty = doc.createElement("description");
-                    newsProperty.setTextContent(news.getDescription());
-                    newsTag.appendChild(newsProperty);
+                    newsTag.addElement("description").
+                            addText(news.getDescription());
                 }
                 if(news.getUrl() != null) {
-                    newsProperty = doc.createElement("url");
-                    newsProperty.setTextContent(news.getUrl());
-                    newsTag.appendChild(newsProperty);
+                    newsTag.addElement("url").
+                            addText(news.getUrl());
                 }
                 if(news.getImageUrl() != null) {
-                    newsProperty = doc.createElement("imageUrl");
-                    newsProperty.setTextContent(news.getImageUrl());
-                    newsTag.appendChild(newsProperty);
+                    newsTag.addElement("imageUrl").
+                            addText(news.getImageUrl());
                 }
-
-                root.appendChild(newsTag);
             }
 
-            doc.appendChild(root);
+            OutputFormat format = OutputFormat.createPrettyPrint();
+            format.setEncoding("UTF-8");
+            XMLWriter writer = new XMLWriter(byteStream, format);
+            writer.write(document);
 
-            DOMSource domSource = new DOMSource(doc);
-            StringWriter writer = new StringWriter();
-            StreamResult result = new StreamResult(writer);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            Transformer transformer = tf.newTransformer();
-            transformer.transform(domSource, result);
-
-            rae = new ResultAndError<>(writer.toString());
+            rae = new ResultAndError<>(byteStream.toString());
         } catch (Exception e) {
             logger.error(Objects.requireNonNullElse(e.getMessage(),
                     e.toString()));

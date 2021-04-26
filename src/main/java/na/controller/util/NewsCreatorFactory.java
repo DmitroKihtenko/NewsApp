@@ -1,7 +1,6 @@
 package na.controller.util;
 
 import na.service.Assertions;
-import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;

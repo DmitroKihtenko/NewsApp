@@ -1,7 +1,6 @@
 package na.controller.services;
 
 import na.service.Assertions;
-import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -34,8 +33,7 @@ public class ImageLookupService {
         ResponseEntity<byte[]> response;
         HttpHeaders requestHeaders = new HttpHeaders();
         List<MediaType> requestMediaTypes = new ArrayList<>(1);
-        requestMediaTypes.add(MediaTypeLogic.createFromString(
-                MediaType.IMAGE_JPEG_VALUE));
+        requestMediaTypes.add(MediaType.IMAGE_JPEG);
         requestHeaders.setAccept(requestMediaTypes);
         HttpEntity<String> requestEntity = new HttpEntity<>("",
                 requestHeaders);

@@ -56,21 +56,21 @@ public class NewsResponseController extends NewsSearchController {
 
     @RequestMapping(value = "/getNews")
     public ResponseEntity<?> getNewsResponse(
-                                     @RequestParam(
-                                             value = "category",
-                                             defaultValue = "all")
-                                             String category,
-                                     @RequestParam(
-                                             value = "country",
-                                             defaultValue = "all")
-                                             String country,
-                                     @RequestParam(
-                                             value = "language",
-                                             defaultValue = "all")
-                                             String language,
-                                     @RequestParam(value = "format",
-                                             defaultValue = "json")
-                                             String format)
+            @RequestParam(
+                    value = "category",
+                    defaultValue = "all")
+                    String category,
+            @RequestParam(
+                    value = "country",
+                    defaultValue = "all")
+                    String country,
+            @RequestParam(
+                    value = "language",
+                    defaultValue = "all")
+                    String language,
+            @RequestParam(value = "format",
+                    defaultValue = "json")
+                    String format)
             throws ResponseHandleException, ExecutionException,
             InterruptedException {
         logger.info("Client get news request");

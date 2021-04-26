@@ -1,7 +1,6 @@
 package na.sources.newsApi;
 import na.service.Assertions;
 import na.sources.SourcesParams;
-import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
@@ -85,8 +84,7 @@ public class NASourcesParams extends NAKeyParams implements SourcesParams {
 
     @Override
     public MediaType getRequiredMediaType() {
-        return MediaTypeLogic.createFromString(MediaType.
-                APPLICATION_JSON_VALUE);
+        return MediaType.APPLICATION_JSON;
     }
 
     @Override

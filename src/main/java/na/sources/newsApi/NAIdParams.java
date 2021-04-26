@@ -2,7 +2,6 @@ package na.sources.newsApi;
 
 import na.service.Assertions;
 import na.sources.IdParams;
-import na.service.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -101,8 +100,7 @@ public class NAIdParams extends NAKeyParams implements IdParams {
 
     @Override
     public MediaType getRequiredMediaType() {
-        return MediaTypeLogic.createFromString(MediaType.
-                APPLICATION_JSON_VALUE);
+        return MediaType.APPLICATION_JSON;
     }
 
     @Override
