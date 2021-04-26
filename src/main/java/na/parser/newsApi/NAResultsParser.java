@@ -16,7 +16,8 @@ public class NAResultsParser implements NewsParser {
     @Override
     public ResultAndError<Integer> parse(String jsonString) {
         JSONObject jsonObject;
-        ResultAndError<Integer> newsResults = new ResultAndError<>(0);
+        ResultAndError<Integer> newsResults =
+                new ResultAndError<>(0);
 
         logger.info("Starting parsing results amount");
 
@@ -36,7 +37,8 @@ public class NAResultsParser implements NewsParser {
                 return newsResults;
             }
 
-            newsResults.setResult((Integer) jsonObject.get("totalResults"));
+            newsResults.setResult((Integer) jsonObject.
+                    get("totalResults"));
 
         } catch (JSONException | ClassCastException e) {
             logger.error("Results parse error: " + Objects.

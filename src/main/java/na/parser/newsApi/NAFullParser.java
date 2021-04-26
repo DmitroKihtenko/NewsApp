@@ -56,16 +56,20 @@ public class NAFullParser implements NewsParser {
 
                 try {
                     listNews.setTitle((String) news.get("title"));
-                    listNews.setDescription((String) news.get("description"));
+                    listNews.setDescription((String) news.
+                            get("description"));
                     listNews.setUrl((String) news.get("url"));
-                } catch (MalformedURLException | URISyntaxException e) {
+                } catch (MalformedURLException |
+                        URISyntaxException e) {
                     uriErrors++;
                 } catch (ClassCastException | JSONException e) {
                     parseErrors++;
                 }
                 try {
-                    listNews.setImageUrl((String) news.get("urlToImage"));
-                } catch (MalformedURLException | URISyntaxException e) {
+                    listNews.setImageUrl((String) news.
+                            get("urlToImage"));
+                } catch (MalformedURLException |
+                        URISyntaxException e) {
                     uriErrors++;
                 } catch (ClassCastException | JSONException e) {
 
@@ -73,12 +77,14 @@ public class NAFullParser implements NewsParser {
                 try {
                     authorObject = (JSONObject) news.get("author");
                     try {
-                        listNews.setAuthor((String) authorObject.get("name"));
+                        listNews.setAuthor((String) authorObject.
+                                get("name"));
                     } catch (ClassCastException | JSONException e) {
                     }
                 } catch (ClassCastException e) {
                     try {
-                        listNews.setAuthor((String) news.get("author"));
+                        listNews.setAuthor((String) news.
+                                get("author"));
                     } catch (ClassCastException | JSONException e1) {
                     }
                 }

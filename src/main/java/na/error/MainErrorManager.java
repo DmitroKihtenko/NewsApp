@@ -1,5 +1,6 @@
 package na.error;
 
+import na.service.Assertions;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,13 +23,9 @@ public class MainErrorManager implements ErrorManager {
     @Autowired
     public void setIgnorableErrors(@Value("${newsApiIgnorableErrors}")
                                                String ... errorCodes) {
-        if(errorCodes == null) {
-            logger.warn("Parameters list has null value");
+        Assertions.isNotNull(errorCodes, "List of ignorable errors",
+                logger);
 
-            throw new IllegalArgumentException(
-                    "Parameters list has null value"
-            );
-        }
         ignorableErrors.addAll(Arrays.asList(errorCodes));
     }
 

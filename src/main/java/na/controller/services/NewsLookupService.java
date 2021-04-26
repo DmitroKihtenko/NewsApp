@@ -1,5 +1,6 @@
 package na.controller.services;
 
+import na.service.Assertions;
 import na.sources.NewsSite;
 import na.sources.UrnParams;
 import org.apache.commons.codec.Charsets;
@@ -22,23 +23,25 @@ public class NewsLookupService {
             Logger.getLogger(NewsLookupService.class);
 
     private final RestTemplate restTemplate;
-    private NewsSite newsSite;
+    private final NewsSite newsSite;
 
     @Autowired
-    public NewsLookupService(NewsSite newsSite) {
-        if(newsSite == null) {
-            logger.error("News source has null value");
+    public NewsLookupService(RestTemplate restTemplate,
+                             NewsSite newsSite) {
+        Assertions.isNotNull(restTemplate, "Rest template", logger);
+        Assertions.isNotNull(newsSite, "News site", logger);
 
-            throw new IllegalArgumentException(
-                    "News source has null value"
-            );
-        }
         this.newsSite = newsSite;
-        restTemplate = new RestTemplate();
+        this.restTemplate = restTemplate;
     }
 
     @Async("mainThreadPoolTaskExecutor")
-    public CompletableFuture<ResponseEntity<String>> lookup(UrnParams urnParams) {
+    public CompletableFuture<ResponseEntity<String>> asyncLookup(
+            UrnParams urnParams) {
+        return CompletableFuture.completedFuture(lookup(urnParams));
+    }
+
+    public ResponseEntity<String> lookup(UrnParams urnParams) {
         ResponseEntity<String> response;
         String requestUri = newsSite.getFullUri(urnParams);
         HttpHeaders requestHeaders = new HttpHeaders();
@@ -48,15 +51,17 @@ public class NewsLookupService {
         List<Charset> requestCharset = new ArrayList<>(1);
         requestCharset.add(Charsets.toCharset("UTF-8"));
         requestHeaders.setAcceptCharset(requestCharset);
-        HttpEntity<String> requestEntity = new HttpEntity<>("", requestHeaders);
+        HttpEntity<String> requestEntity = new HttpEntity<>("",
+                requestHeaders);
 
         logger.info("Attempt to lookup response from " + requestUri);
 
         try {
-            response = restTemplate.exchange(requestUri, HttpMethod.GET,
-                    requestEntity, String.class);
+            response = restTemplate.exchange(requestUri,
+                    HttpMethod.GET, requestEntity, String.class);
         } catch (RestClientResponseException e) {
-            logger.info("Source returned status code: " + e.getRawStatusCode());
+            logger.info("Source returned status code: " +
+                    e.getRawStatusCode());
 
             response = ResponseEntity.status(e.getRawStatusCode()).
                     body(e.getResponseBodyAsString());
@@ -64,6 +69,6 @@ public class NewsLookupService {
 
         logger.info("Successfully got response");
 
-        return CompletableFuture.completedFuture(response);
+        return response;
     }
 }

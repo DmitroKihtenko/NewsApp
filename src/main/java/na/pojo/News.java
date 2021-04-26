@@ -1,10 +1,12 @@
 package na.pojo;
 
+import na.service.Assertions;
 import org.apache.log4j.Logger;
 
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Objects;
 
 public class News {
     private static final Logger logger = Logger.getLogger(News.class);
@@ -20,13 +22,7 @@ public class News {
     }
 
     public void setTitle(String title) {
-        if(title == null) {
-            logger.error("Title parameter has null value");
-
-            throw new IllegalArgumentException(
-                    "Title parameter has null value"
-            );
-        }
+        Assertions.isNotNull(title, "Title", logger);
         this.title = title;
     }
 
@@ -35,13 +31,7 @@ public class News {
     }
 
     public void setDescription(String description) {
-        if(description == null) {
-            logger.error("Description parameter has null value");
-
-            throw new IllegalArgumentException(
-                    "Description parameter has null value"
-            );
-        }
+        Assertions.isNotNull(description, "Description", logger);
         this.description = description;
     }
 
@@ -65,12 +55,8 @@ public class News {
     }
 
     public void setAuthor(String author) {
-        if(author == null) {
-            logger.error("Author parameter has null value");
+        Assertions.isNotNull(author, "Author", logger);
 
-            throw new IllegalArgumentException(
-                    "Author parameter has null value");
-        }
         if(!author.equals("")) {
             this.author = author;
         } else {
@@ -84,12 +70,14 @@ public class News {
     }
 
     public void setUrl(String url) throws MalformedURLException, URISyntaxException {
-        try {
-            new URL(url).toURI();
-        } catch (MalformedURLException | URISyntaxException e) {
-            logger.info("It has been set invalid url format");
+        if(url != null) {
+            try {
+                new URL(url).toURI();
+            } catch (MalformedURLException | URISyntaxException e) {
+                logger.info("It has been set invalid url format");
 
-            throw e;
+                throw e;
+            }
         }
         this.url = url;
     }
@@ -103,5 +91,26 @@ public class News {
                 ", author='" + author + '\'' +
                 ", url='" + url + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        News news = (News) o;
+        return Objects.equals(title, news.title) &&
+                Objects.equals(description, news.description) &&
+                Objects.equals(imageUrl, news.imageUrl) &&
+                Objects.equals(author, news.author) &&
+                Objects.equals(url, news.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(title, description, imageUrl, author, url);
     }
 }

@@ -1,5 +1,6 @@
 package na.sources.newsApi;
 
+import na.service.Assertions;
 import na.sources.UrnParams;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +15,8 @@ public abstract class NAKeyParams implements UrnParams {
 
     @Autowired
     public void setApiKey(@Value("${newsApiKey}") String apiKey) {
-        if(apiKey == null) {
-            logger.error("API key parameter has null value");
+        Assertions.isNotNull(apiKey, "News api key", logger);
 
-            throw new IllegalArgumentException(
-                    "API key parameter has null value"
-            );
-        }
         this.apiKey = apiKey;
     }
 

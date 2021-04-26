@@ -1,6 +1,6 @@
 package na.sources.newsApi;
+import na.service.Assertions;
 import na.sources.SourcesParams;
-import na.pojo.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.MediaType;
@@ -16,26 +16,11 @@ public class NASourcesParams extends NAKeyParams implements SourcesParams {
     private String country;
     private String language;
 
-    private void checkOption(String option) {
-        if(option == null) {
-            logger.error("Option parameter has null value");
-
-            throw new IllegalArgumentException(
-                    "Option parameter has null value"
-            );
-        }
-        if(option.length() == 0) {
-            logger.error("Option parameter is empty");
-
-            throw new IllegalArgumentException(
-                    "Option parameter is empty"
-            );
-        }
-    }
-
     @Override
     public void setCategory(String option) {
-        checkOption(option);
+        Assertions.isNotNull(option, "Category", logger);
+        Assertions.notEmptyString(option, "Category", logger);
+
         if(option.equals("all")) {
             category = null;
         } else {
@@ -46,7 +31,9 @@ public class NASourcesParams extends NAKeyParams implements SourcesParams {
 
     @Override
     public void setCountry(String option) {
-        checkOption(option);
+        Assertions.isNotNull(option, "Country", logger);
+        Assertions.notEmptyString(option, "Country", logger);
+
         if(option.equals("all")) {
             country = null;
         } else {
@@ -57,7 +44,9 @@ public class NASourcesParams extends NAKeyParams implements SourcesParams {
 
     @Override
     public void setLanguage(String option) {
-        checkOption(option);
+        Assertions.isNotNull(option, "Language", logger);
+        Assertions.notEmptyString(option, "Language", logger);
+
         if(option.equals("all")) {
             language = null;
         } else {
@@ -95,7 +84,7 @@ public class NASourcesParams extends NAKeyParams implements SourcesParams {
 
     @Override
     public MediaType getRequiredMediaType() {
-        return MediaTypeLogic.createFromString(MediaType.APPLICATION_JSON_VALUE);
+        return MediaType.APPLICATION_JSON;
     }
 
     @Override

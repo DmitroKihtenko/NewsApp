@@ -1,7 +1,7 @@
 package na.sources.newsApi;
 
+import na.service.Assertions;
 import na.sources.IdParams;
-import na.pojo.MediaTypeLogic;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,38 +29,23 @@ public class NAIdParams extends NAKeyParams implements IdParams {
 
     @Override
     public void setIdsList(Iterable<String> idsList) {
-        if(idsList == null) {
-            logger.warn("Ids list parameter has null value");
+        Assertions.isNotNull(idsList, "Ids list", logger);
 
-            throw new IllegalArgumentException(
-                    "Ids list parameter has null value"
-            );
-        }
         this.idsList = idsList;
     }
 
     @Override
     public void setPage(int page) {
-        if(page <= 0) {
-            logger.error("Page parameter has non-positive value");
+        Assertions.isPositive(page, "Page", logger);
 
-            throw new IllegalArgumentException(
-                    "Page parameter has non-positive value"
-            );
-        }
         this.page = page;
     }
 
     @Override
     @Autowired
     public void setPageSize(@Value("${requestPageSize}") int pageSize) {
-        if(pageSize <= 0) {
-            logger.error("Page size parameter has non-positive value");
+        Assertions.isPositive(pageSize, "Page size", logger);
 
-            throw new IllegalArgumentException(
-                    "Page size parameter has non-positive value"
-            );
-        }
         this.pageSize = pageSize;
     }
 
@@ -115,7 +100,7 @@ public class NAIdParams extends NAKeyParams implements IdParams {
 
     @Override
     public MediaType getRequiredMediaType() {
-        return MediaTypeLogic.createFromString(MediaType.APPLICATION_JSON_VALUE);
+        return MediaType.APPLICATION_JSON;
     }
 
     @Override
